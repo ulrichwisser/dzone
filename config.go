@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -49,7 +48,6 @@ func readConfigFile(filename string) (config *Configuration, error error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(config)
 	return config, nil
 }
 
