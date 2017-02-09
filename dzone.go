@@ -11,11 +11,11 @@ import (
 )
 
 const PAGESIZE = 100
-const STATSSIZE = 5
+const STATSSIZE = 6
 
 var Config *Configuration
 
-var statsType [STATSSIZE]string = [STATSSIZE]string{"SYNC", "NOTPROV", "TRANSFER_FAILING", "CONFLICT", "TOTAL"}
+var statsType [STATSSIZE]string = [STATSSIZE]string{"SYNC", "OUTOFSYNC", "NOTPROV", "TRANSFER_FAILING", "CONFLICT", "TOTAL"}
 var stats map[string]uint
 var custstats map[string]map[string]uint
 
