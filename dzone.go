@@ -142,7 +142,6 @@ func countTld(data *zoneList, wg *sync.WaitGroup) {
 		foundTld := false
 		for _, tld := range statsTldType {
 			if strings.HasSuffix(strings.ToUpper(item.Name), "."+tld+".") {
-				fmt.Printf("TLD %s %s %s\n", tld, item.CustomerName, item.Name)
 				statsTld[tld]++
 				statsTldCustomer[item.CustomerName][tld]++
 				foundTld = true
@@ -150,7 +149,6 @@ func countTld(data *zoneList, wg *sync.WaitGroup) {
 			}
 		}
 		if !foundTld {
-			fmt.Printf("TLD %s %s %s\n", TLD_OTHER, item.CustomerName, item.Name)
 			statsTld[TLD_OTHER]++
 			statsTldCustomer[item.CustomerName][TLD_OTHER]++
 		}
