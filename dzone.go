@@ -22,7 +22,7 @@ var stats map[string]uint
 var custstats map[string]map[string]uint
 
 // Number of zones by tld statistics
-var statsTldType = [...]string{"SE", "NU"}
+var statsTldType = [...]string{"SE", "NU", "ARPA"}
 var TLD_OTHER = "OTHER"
 var statsTld map[string]uint
 var statsTldCustomer map[string]map[string]uint
