@@ -14,6 +14,7 @@ func parseFlags() *Configuration {
 	var config Configuration
 	var filename string
 	flag.StringVar(&filename, "conf", "", "Filename to read configuration from")
+	flag.BoolVar(&dryrun, "dry", false, "print more information while running")
 	flag.StringVar(&config.ServerRoot, "serverRoot", "", "The base URL of the IIS Anycast server. e.g. https://api.anycast.iis.se")
 	flag.StringVar(&config.ApiUser, "apiUser", "", "The API user name")
 	flag.StringVar(&config.ApiSecret, "apiSecret", "", "The API user secret")
@@ -35,11 +36,7 @@ func parseFlags() *Configuration {
 }
 
 func readConfigFile(filename string) (config *Configuration, error error) {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-	source, err := ioutil.ReadFile(path.Join(usr.HomeDir, ".dzone"))
+	source, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}

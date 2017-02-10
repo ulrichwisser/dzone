@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 )
 
@@ -15,9 +16,18 @@ const STATSSIZE = 6
 
 var Config *Configuration
 
+// Number of zones statistics
 var statsType [STATSSIZE]string = [STATSSIZE]string{"SYNC", "OUTOFSYNC", "NOTPROV", "TRANSFER_FAILING", "CONFLICT", "TOTAL"}
 var stats map[string]uint
 var custstats map[string]map[string]uint
+
+// Number of zones by tld statistics
+var statsTldType = [...]string{"SE", "NU"}
+var TLD_OTHER = "OTHER"
+var statsTld map[string]uint
+var statsTldCustomer map[string]map[string]uint
+
+var dryrun bool = false
 
 func startSession() {
 	sessionurl, err := url.Parse(Config.ServerRoot)
@@ -85,8 +95,9 @@ func getZoneList() {
 
 	for {
 		data := getZoneListPage(page)
-		wg.Add(1)
+		wg.Add(2)
 		go count(data, wg)
+		go countTld(data, wg)
 		if !data.HasNext {
 			break
 		}
@@ -118,13 +129,44 @@ func count(data *zoneList, wg *sync.WaitGroup) {
 	wg.Done()
 }
 
+func countTld(data *zoneList, wg *sync.WaitGroup) {
+	for _, item := range data.Items {
+		// init customer stats if needed
+		if _, ok := statsTldCustomer[item.CustomerName]; !ok {
+			statsTldCustomer[item.CustomerName] = make(map[string]uint)
+			for _, tld := range statsTldType {
+				statsTldCustomer[item.CustomerName][tld] = 0
+			}
+		}
+
+		foundTld := false
+		for _, tld := range statsTldType {
+			if strings.HasSuffix(strings.ToUpper(item.Name), "."+tld+".") {
+				fmt.Printf("TLD %s %s %s\n", tld, item.CustomerName, item.Name)
+				statsTld[tld]++
+				statsTldCustomer[item.CustomerName][tld]++
+				foundTld = true
+				break
+			}
+		}
+		if !foundTld {
+			fmt.Printf("TLD %s %s %s\n", TLD_OTHER, item.CustomerName, item.Name)
+			statsTld[TLD_OTHER]++
+			statsTldCustomer[item.CustomerName][TLD_OTHER]++
+		}
+
+	}
+	wg.Done()
+}
+
 func main() {
 	stats = make(map[string]uint, STATSSIZE)
 	for _, i := range statsType {
 		stats[i] = 0
 	}
 	custstats = make(map[string]map[string]uint)
-
+	statsTld = make(map[string]uint, len(statsTldType)+1)
+	statsTldCustomer = make(map[string]map[string]uint)
 	Config = readDefaultConfigFiles()
 	Config = joinConfig(Config, parseFlags())
 
