@@ -73,7 +73,7 @@ func influx() {
 		if err != nil {
 			panic(err)
 		}
-		if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode != http.StatusNoContent {
 			panic(errors.New(fmt.Sprintf("InfluxDB return %d", resp.StatusCode)))
 		}
 	} else {
