@@ -116,6 +116,16 @@ func joinConfig(oldConf *Configuration, newConf *Configuration) (config *Configu
 	} else {
 		config.InfluxDB = oldConf.InfluxDB
 	}
+	if newConf.InfluxUser != "" {
+		config.InfluxUser = newConf.InfluxUser
+	} else {
+		config.InfluxUser = oldConf.InfluxUser
+	}
+	if newConf.InfluxPasswd != "" {
+		config.InfluxPasswd = newConf.InfluxPasswd
+	} else {
+		config.InfluxPasswd = oldConf.InfluxPasswd
+	}
 
 	// Done
 	return config
