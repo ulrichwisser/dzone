@@ -14,14 +14,15 @@ func parseFlags() *Configuration {
 	var config Configuration
 	var filename string
 	flag.StringVar(&filename, "conf", "", "Filename to read configuration from")
-	flag.BoolVar(&dryrun, "dry", false, "print more information while running")
+	flag.BoolVar(&dryrun, "dryrun", false, "print more information while running")
 	flag.StringVar(&config.ServerRoot, "serverRoot", "", "The base URL of the IIS Anycast server. e.g. https://api.anycast.iis.se")
 	flag.StringVar(&config.ApiUser, "apiUser", "", "The API user name")
 	flag.StringVar(&config.ApiSecret, "apiSecret", "", "The API user secret")
 	flag.StringVar(&config.ApiPasswd, "apiPasswd", "", "The API user password")
 	flag.StringVar(&config.InfluxServer, "influxServer", "", "Server with InfluxDB running")
-	flag.StringVar(&config.InfluxPort, "influxPort", "", "Port used by InfluxDB")
 	flag.StringVar(&config.InfluxDB, "influxDB", "", "Name of InfluxDB database")
+	flag.StringVar(&config.InfluxUser, "influxUser", "", "Name of InfluxDB user")
+	flag.StringVar(&config.InfluxPasswd, "influxPasswd", "", "Name of InfluxDB user password")
 	flag.Parse()
 
 	var confFromFile *Configuration
@@ -109,11 +110,6 @@ func joinConfig(oldConf *Configuration, newConf *Configuration) (config *Configu
 		config.InfluxServer = newConf.InfluxServer
 	} else {
 		config.InfluxServer = oldConf.InfluxServer
-	}
-	if newConf.InfluxPort != "" {
-		config.InfluxPort = newConf.InfluxPort
-	} else {
-		config.InfluxPort = oldConf.InfluxPort
 	}
 	if newConf.InfluxDB != "" {
 		config.InfluxDB = newConf.InfluxDB

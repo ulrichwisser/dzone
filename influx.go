@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 )
 
 func influx() {
@@ -49,13 +52,36 @@ func influx() {
 	}
 
 	// save to InfluxDB
+
+	// compute InfluxDB URL
+	sessionurl, err := url.Parse(Config.InfluxServer)
+	sessionurl.Path = "write"
+	q := sessionurl.Query()
+	q.Set("db", Config.InfluxDB)
+	sessionurl.RawQuery = q.Encode()
+
+	req, err := http.NewRequest(http.MethodPost, sessionurl.String(), bytes.NewBufferString(lines))
+	if err != nil {
+		panic(err)
+	}
+	if len(Config.InfluxUser) > 0 {
+		req.SetBasicAuth(Config.InfluxUser, Config.InfluxPasswd)
+	}
+
 	if !dryrun {
-		_, err := http.Post(fmt.Sprintf("http://%s:%s/write?db=%s", Config.InfluxServer, Config.InfluxPort, Config.InfluxDB), "application/x-www-form-urlencoded", bytes.NewBufferString(lines))
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			panic(err)
 		}
+		if resp.StatusCode != http.StatusOK {
+			panic(errors.New(fmt.Sprintf("InfluxDB return %d", resp.StatusCode)))
+		}
 	} else {
-		fmt.Printf("http://%s:%s/write?db=%s\n", Config.InfluxServer, Config.InfluxPort, Config.InfluxDB)
-		fmt.Println(lines)
+		fmt.Println("DRYRUN! No actual call to InfluxDB has been made. The following call would have been made without --dryrun")
+		requestDump, err := httputil.DumpRequest(req, true)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(string(requestDump))
 	}
 }

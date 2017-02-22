@@ -7,8 +7,9 @@ type Configuration struct {
 	ApiAccessToken string
 	ServerRoot     string
 	InfluxServer   string
-	InfluxPort     string
 	InfluxDB       string
+	InfluxUser     string
+	InfluxPasswd   string
 }
 
 type accessData struct {
